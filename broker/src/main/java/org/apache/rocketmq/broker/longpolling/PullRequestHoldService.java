@@ -179,6 +179,7 @@ public class PullRequestHoldService extends ServiceThread {
                     if (newestOffset > request.getPullFromThisOffset()) {
                         if (this.messageFilter.isMessageMatched(request.getSubscriptionData(), tagsCode)) {
                             try {
+                                // <iii>
                                 this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
                                     request.getRequestCommand());
                             } catch (Throwable e) {

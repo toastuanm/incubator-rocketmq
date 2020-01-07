@@ -94,6 +94,9 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
     }
 
     /**
+     * 【入口】五、Message 拉取与消费（上 - Broker） - 6、Broker 提供 [发回消息] 接口
+     * 大部分逻辑和 Broker 提供[接收消息]接口 类似，可以先看下相关内容。     *
+     *
      * 消费者发回消息
      *
      * @param ctx ctx

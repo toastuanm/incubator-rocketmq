@@ -27,6 +27,7 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
 /**
  * 拉取消息请求Header
+ * topic + queueId + queueOffset + maxMsgNums
  */
 public class PullMessageRequestHeader implements CommandCustomHeader {
     /**
@@ -56,6 +57,9 @@ public class PullMessageRequestHeader implements CommandCustomHeader {
     private Integer maxMsgNums;
     /**
      * 系统标识
+     * 第 0 位 FLAG_COMMIT_OFFSET ：标记请求提交消费进度位置，和 commitOffset 配合。
+     * 第 1 位 FLAG_SUSPEND ：标记请求是否挂起请求，和 suspendTimeoutMillis 配合。当拉取不到消息时， Broker 会挂起请求，直到有消息。最大挂起时间：suspendTimeoutMillis 毫秒。
+     * 第 2 位 FLAG_SUBSCRIPTION ：是否过滤订阅表达式，和 subscription 配置。
      */
     @CFNotNull
     private Integer sysFlag;
@@ -75,7 +79,7 @@ public class PullMessageRequestHeader implements CommandCustomHeader {
     @CFNullable
     private String subscription;
     /**
-     * 订阅版本号
+     * 订阅版本号。请求时，如果版本号不对，则无法拉取到消息，需要重新获取订阅信息，使用最新的订阅版本号。
      */
     @CFNotNull
     private Long subVersion;

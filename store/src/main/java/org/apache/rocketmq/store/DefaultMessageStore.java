@@ -454,7 +454,7 @@ public class DefaultMessageStore implements MessageStore {
                                 isInDisk)) {
                                 break;
                             }
-                            // 判断消息是否符合条件
+                            // 判断消息是否符合条件 <iii>
                             if (this.messageFilter.isMessageMatched(subscriptionData, tagsCode)) {
                                 // 从commitLog获取对应消息ByteBuffer
                                 SelectMappedBufferResult selectResult = this.commitLog.getMessage(offsetPy, sizePy);
@@ -1342,6 +1342,7 @@ public class DefaultMessageStore implements MessageStore {
         switch (tranType) {
             case MessageSysFlag.TRANSACTION_NOT_TYPE: // 非事务消息
             case MessageSysFlag.TRANSACTION_COMMIT_TYPE: // 事务消息COMMIT
+                // <iii>
                 DefaultMessageStore.this.putMessagePositionInfo(req.getTopic(), req.getQueueId(), req.getCommitLogOffset(), req.getMsgSize(),
                     req.getTagsCode(), req.getStoreTimestamp(), req.getConsumeQueueOffset());
                 break;
@@ -1369,6 +1370,7 @@ public class DefaultMessageStore implements MessageStore {
     public void putMessagePositionInfo(String topic, int queueId, long offset, int size, long tagsCode, long storeTimestamp,
         long logicOffset) {
         ConsumeQueue cq = this.findConsumeQueue(topic, queueId);
+        // <iii>
         cq.putMessagePositionInfoWrapper(offset, size, tagsCode, storeTimestamp, logicOffset);
     }
 
@@ -1595,7 +1597,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
-     * flush 消费队列 线程服务
+     * flush 消费队列ConsumeQueue 的线程服务
      */
     class FlushConsumeQueueService extends ServiceThread {
         private static final int RETRY_TIMES_OVER = 3;
@@ -1607,11 +1609,12 @@ public class DefaultMessageStore implements MessageStore {
         private void doFlush(int retryTimes) {
             int flushConsumeQueueLeastPages = DefaultMessageStore.this.getMessageStoreConfig().getFlushConsumeQueueLeastPages();
 
-            // retryTimes == RETRY_TIMES_OVER时，进行强制flush。主要用于shutdown时。
+            // retryTimes == RETRY_TIMES_OVER 时，进行强制flush。主要用于shutdown时。
             if (retryTimes == RETRY_TIMES_OVER) {
                 flushConsumeQueueLeastPages = 0;
             }
-            // 当时间满足flushConsumeQueueThoroughInterval时，即使写入的数量不足flushConsumeQueueLeastPages，也进行flush
+            // 当时间满足 flushConsumeQueueThoroughInterval 时，即使写入的数量不足flushConsumeQueueLeastPages，也进行flush
+            // 每 flushConsumeQueueThoroughInterval 周期，执行一次 flush 。因为不是每次循环到都能满足 flushConsumeQueueLeastPages 大小，因此，需要一定周期进行一次强制 flush 。当然，不能每次循环都去执行强制 flush，这样性能较差。
             long logicsMsgTimestamp = 0;
             int flushConsumeQueueThoroughInterval = DefaultMessageStore.this.getMessageStoreConfig().getFlushConsumeQueueThoroughInterval();
             long currentTimeMillis = System.currentTimeMillis();
@@ -1639,6 +1642,9 @@ public class DefaultMessageStore implements MessageStore {
             }
         }
 
+        /**
+         * 每 1000ms 执行一次 flush。如果 wakeup() 时，则会立即进行一次 flush。目前，暂时不存在 wakeup() 的调用。
+         */
         public void run() {
             DefaultMessageStore.log.info(this.getServiceName() + " service started");
 
@@ -1669,6 +1675,13 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
+     * 【入口】五、Message 拉取与消费（上 - Broker） - 3、ConsumeQueue 存储
+     * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/
+     *
+     * ConsumeQueue主要有两个组件：
+     * {@link ReputMessageService} ：write ConsumeQueue。
+     * {@link FlushConsumeQueueService} ：flush ConsumeQueue
+     *
      * 重放消息线程服务
      * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
      * 该服务不断生成 消息索引 到 索引文件(IndexFile)
@@ -1741,14 +1754,17 @@ public class DefaultMessageStore implements MessageStore {
 
                         // 遍历MappedByteBuffer
                         for (int readSize = 0; readSize < result.getSize() && doNext; ) {
-                            // 生成重放消息重放调度请求
+                            // 生成重放消息重放调度请求 (DispatchRequest) 。请求里主要包含一条消息 (Message) 或者 文件尾 (BLANK) 的基本信息。
                             DispatchRequest dispatchRequest = DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
                             int size = dispatchRequest.getMsgSize(); // 消息长度
                             // 根据请求的结果处理
+                            // 请求是有效请求，进行逻辑处理。
                             if (dispatchRequest.isSuccess()) { // 读取成功
                                 if (size > 0) { // 读取Message
+                                    // <iii>
                                     DefaultMessageStore.this.doDispatch(dispatchRequest);
                                     // 通知有新消息
+                                    // 当 Broker 是主节点 && Broker 开启的是长轮询，通知消费队列有新的消息。NotifyMessageArrivingListener 会 调用  PullRequestHoldService#notifyMessageArriving(...) 方法，详细解析见：PullRequestHoldService.class <iii>
                                     if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
                                         && DefaultMessageStore.this.brokerConfig.isLongPollingEnable()) {
                                         DefaultMessageStore.this.messageArrivingListener.arriving(dispatchRequest.getTopic(),

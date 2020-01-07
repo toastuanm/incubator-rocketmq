@@ -248,11 +248,18 @@ public class BrokerController {
                 }
             }, initialDelay, period, TimeUnit.MILLISECONDS);
 
-            // 定时持久化消费进度
+            /*
+            【入口】五、Message 拉取与消费（上 - Broker） - 5、Broker 提供 [更新消费进度] 接口
+            consumerOffset.json ：消费进度存储文件。
+            consumerOffset.json.bak ：消费进度存储文件备份。
+            每次写入 consumerOffset.json，将原内容备份到 consumerOffset.json.bak。实现见：MixAll#string2File(…)。
+             */
+            // 定时持久化消费进度。每 5s 执行一次持久化逻辑
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        // <iii> ，另外看一下 ConfigManager.class 和 ConsumerOffsetManager.class
                         BrokerController.this.consumerOffsetManager.persist();
                     } catch (Throwable e) {
                         log.error("schedule persist consumerOffset error.", e);
