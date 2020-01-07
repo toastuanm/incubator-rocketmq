@@ -80,6 +80,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
     }
 
     /**
+     * 【入口】三、Message 发送与接收 - Broker 接收消息
      * 处理拉取消息请求，返回响应
      *
      * @param channel channel

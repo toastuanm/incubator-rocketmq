@@ -583,10 +583,15 @@ public class CommitLog {
     }
 
     /**
-     * 添加消息，返回消息结果
+     * 【入口】四、Message 存储 - 主体逻辑（刷盘之前）
+     * CommitLog 是对 MappedFileQueue 的封装，MappedFileQueue 将 MappedFile 封装成文件队列
+     * 三者是 1 ： 1 ： N 的关系
+     * MappedFile 里只有两种内容：MESSAGE 和 BLANK 。BLANK 是文件不足以存储消息时的空白占位
      *
-     * @param msg 消息
-     * @return 结果
+     * 方法描述：存储消息，并返回存储结果
+     *
+     * @param msg
+     * @return
      */
     public PutMessageResult putMessage(final MessageExtBrokerInner msg) {
         // Set the storage time
@@ -732,6 +737,10 @@ public class CommitLog {
             }
         }
 
+        /*
+        【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.6 Master_SYNC - 同步双写实现
+        Producer 发送消息时，Master_SYNC节点 会等待 Slave节点 存储完毕后再返回发送结果
+         */
         // Synchronous write double 如果是同步Master，同步到从节点
         if (BrokerRole.SYNC_MASTER == this.defaultMessageStore.getMessageStoreConfig().getBrokerRole()) {
             HAService service = this.defaultMessageStore.getHaService();
@@ -945,7 +954,25 @@ public class CommitLog {
     }
 
     /**
-     * flush commitLog 线程服务
+     * 【入口】四、Message 存储 - 刷盘逻辑
+     *
+     * 共有三个子类：
+     * 线程服务	                场景	                   插入消息性能
+     * CommitRealTimeService	异步刷盘 && 开启内存字节缓冲区	第一
+     * FlushRealTimeService	    异步刷盘 && 关闭内存字节缓冲区	第二
+     * GroupCommitService	    同步刷盘	                    第三
+     *
+     * MappedFile#落盘
+     * 方式
+     * 方式一：写入内存字节缓冲区(writeBuffer)，从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel)，文件通道(fileChannel)flush
+     * 方式二：写入映射文件字节缓冲区(mappedByteBuffer)，映射文件字节缓冲区(mappedByteBuffer)flush
+     *
+     * 观看顺序：
+     * 1、flush逻辑：{@link org.apache.rocketmq.store.MappedFile#flush(int)}
+     * 2、commit逻辑：{@link MappedFile#commit(int)}
+     * 3、{@link FlushRealTimeService}
+     * 4、{@link CommitRealTimeService}
+     * 5、{@link GroupCommitService}
      */
     abstract class FlushCommitLogService extends ServiceThread {
         protected static final int RETRY_TIMES_OVER = 10;

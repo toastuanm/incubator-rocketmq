@@ -201,6 +201,11 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      */
     @Override
     public SendResult send(Message msg) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+        /*
+        【】Message 发送与接收 - 1. 概述 - Producer 发送消息。主要是同步发送消息源码，涉及到 异步/Oneway发送消息，事务消息会跳过
+        【入口】三、Message 发送与接收 - Produce 发送消息
+        <iii> 往里面点若干层
+         */
         return this.defaultMQProducerImpl.send(msg);
     }
 
