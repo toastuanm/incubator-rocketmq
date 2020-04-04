@@ -930,6 +930,10 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     }
 
     /**
+     * 【入口】五、Message 拉取与消费（下 - Consumer） - 4、PushConsumer 订阅
+     * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-second/
+     * 消息监听器在这里注册：{@link DefaultMQPushConsumer#registerMessageListener(org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently)}
+     *
      * 订阅 Topic
      *
      * @param topic Topic
@@ -938,7 +942,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
      */
     public void subscribe(String topic, String subExpression) throws MQClientException {
         try {
-            // 创建订阅数据
+            // 创建订阅数据。详细解析见：FilterAPI.buildSubscriptionData(…)。 <iii>
             SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(), //
                 topic, subExpression);
             this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);

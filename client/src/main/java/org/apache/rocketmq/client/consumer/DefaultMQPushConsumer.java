@@ -482,6 +482,7 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     /**
      * Register a callback to execute on message arrival for concurrent consuming.
+     * 注册消息监听器
      *
      * @param messageListener message handling callback.
      */

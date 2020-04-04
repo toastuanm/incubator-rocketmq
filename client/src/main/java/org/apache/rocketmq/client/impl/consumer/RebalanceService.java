@@ -22,6 +22,9 @@ import org.apache.rocketmq.common.ServiceThread;
 import org.slf4j.Logger;
 
 /**
+ * 【入口】五、Message 拉取与消费（下 - Consumer） - 5、PushConsumer 消息队列分配
+ *
+ * 均衡消息队列服务，负责分配当前 Consumer 可消费的消息队列( MessageQueue )。
  * Rebalance Service
  * consumer负载均衡线程服务
  */
@@ -50,6 +53,13 @@ public class RebalanceService extends ServiceThread {
 
         while (!this.isStopped()) {
             this.waitForRunning(waitInterval);
+            // 调用 MQClientInstance#doRebalance(...) 分配消息队列。 <iii>
+            /*
+            目前有三种情况情况下触发：
+            如果上一行 等待超时，每 20s 调用一次。
+            PushConsumer 启动时，调用 rebalanceService#wakeup(...) 触发。
+            Broker 通知 Consumer 加入 或 移除时，Consumer 响应通知，调用 rebalanceService#wakeup(...) 触发。
+             */
             this.mqClientFactory.doRebalance();
         }
 

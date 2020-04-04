@@ -44,8 +44,8 @@ public class FilterAPI {
      * 根据 Topic 和 订阅表达式 创建订阅数据
      *
      * @param consumerGroup 消费分组
-     * @param topic Topic
-     * @param subString 订阅表达式
+     * @param topic         Topic
+     * @param subString     订阅表达式
      * @return 订阅数据
      * @throws Exception 当解析订阅表达式时
      */

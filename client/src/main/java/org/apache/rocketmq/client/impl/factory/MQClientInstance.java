@@ -988,6 +988,7 @@ public class MQClientInstance {
 
     /**
      * 消费者进行平衡
+     * 遍历当前 Client 包含的 consumerTable( Consumer集合 )，执行消息队列分配。
      */
     public void doRebalance() {
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
