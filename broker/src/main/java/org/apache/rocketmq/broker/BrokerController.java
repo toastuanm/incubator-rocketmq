@@ -249,7 +249,7 @@ public class BrokerController {
             }, initialDelay, period, TimeUnit.MILLISECONDS);
 
             /*
-            【入口】五、Message 拉取与消费（上 - Broker） - 5、Broker 提供 [更新消费进度] 接口
+            rukou5、Message 拉取与消费（上 - Broker） - 5、Broker 提供 [更新消费进度] 接口
             consumerOffset.json ：消费进度存储文件。
             consumerOffset.json.bak ：消费进度存储文件备份。
             每次写入 consumerOffset.json，将原内容备份到 consumerOffset.json.bak。实现见：MixAll#string2File(…)。

@@ -516,35 +516,40 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         this.makeSureStateOK();
         // 校验消息格式
         Validators.checkMessage(msg, this.defaultMQProducer);
-        //
-        final long invokeID = random.nextLong(); // 调用编号；用于下面打印日志，标记为同一次发送消息
+        // 调用编号；用于下面打印日志，标记为同一次发送消息
+        final long invokeID = random.nextLong();
         long beginTimestampFirst = System.currentTimeMillis();
         long beginTimestampPrev = beginTimestampFirst;
         @SuppressWarnings("UnusedAssignment")
         long endTimestamp = beginTimestampFirst;
-        // 获取 Topic路由信息
+        //==========step 1.<iii>获取 Topic路由信息
         TopicPublishInfo topicPublishInfo = this.tryToFindTopicPublishInfo(msg.getTopic());
         if (topicPublishInfo != null && topicPublishInfo.ok()) {
-            MessageQueue mq = null; // 最后选择消息要发送到的队列
+            // 最后选择消息要发送到的队列
+            MessageQueue mq = null;
             Exception exception = null;
-            SendResult sendResult = null; // 最后一次发送结果
-            int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1; // 同步多次调用
+            // 最后一次发送结果
+            SendResult sendResult = null;
+            // 同步多次调用
+            int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1;
             int times = 0; // 第几次发送
-            String[] brokersSent = new String[timesTotal]; // 存储每次发送消息选择的broker名
+            // 存储每次发送消息选择的broker名
+            String[] brokersSent = new String[timesTotal];
             // 循环调用发送消息，直到成功
             for (; times < timesTotal; times++) {
                 String lastBrokerName = null == mq ? null : mq.getBrokerName();
+                //==========step 2.<iii需要了解mqFaultStrategy整个类>选择消息要发送到的队列
                 @SuppressWarnings("SpellCheckingInspection")
-                MessageQueue tmpmq = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName); // 选择消息要发送到的队列
+                MessageQueue tmpmq = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName);
                 if (tmpmq != null) {
                     mq = tmpmq;
                     brokersSent[times] = mq.getBrokerName();
                     try {
                         beginTimestampPrev = System.currentTimeMillis();
-                        // 调用发送消息核心方法
+                        //==========step 3.<iii>调用发送消息核心方法
                         sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout);
                         endTimestamp = System.currentTimeMillis();
-                        // 更新Broker可用性信息
+                        // <iii>更新Broker可用性信息
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
                         switch (communicationMode) {
                             case ASYNC:
@@ -553,7 +558,8 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                                 return null;
                             case SYNC:
                                 if (sendResult.getSendStatus() != SendStatus.SEND_OK) {
-                                    if (this.defaultMQProducer.isRetryAnotherBrokerWhenNotStoreOK()) { // 同步发送成功但存储有问题时 && 配置存储异常时重新发送开关 时，进行重试
+                                    // 同步发送成功但存储有问题时 && 配置存储异常时重新发送开关 时，进行重试
+                                    if (this.defaultMQProducer.isRetryAnotherBrokerWhenNotStoreOK()) {
                                         continue;
                                     }
                                 }
@@ -561,21 +567,24 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                             default:
                                 break;
                         }
-                    } catch (RemotingException e) { // 打印异常，更新Broker可用性信息，更新继续循环
+                    } catch (RemotingException e) {
+                        // 打印异常，更新Broker可用性信息，更新继续循环
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
                         log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
                         log.warn(msg.toString());
                         exception = e;
                         continue;
-                    } catch (MQClientException e) { // 打印异常，更新Broker可用性信息，继续循环
+                    } catch (MQClientException e) {
+                        // 打印异常，更新Broker可用性信息，继续循环
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
                         log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
                         log.warn(msg.toString());
                         exception = e;
                         continue;
-                    } catch (MQBrokerException e) { // 打印异常，更新Broker可用性信息，部分情况下的异常，直接返回，结束循环
+                    } catch (MQBrokerException e) {
+                        // 打印异常，更新Broker可用性信息，部分情况下的异常，直接返回，结束循环
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
                         log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
@@ -651,13 +660,17 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         // 当无可用的 Topic发布信息时，从Namesrv获取一次
         if (null == topicPublishInfo || !topicPublishInfo.ok()) {
             this.topicPublishInfoTable.putIfAbsent(topic, new TopicPublishInfo());
+            // <iii不需要深入>更新单个topic的路由信息（拿到了最新的，当然要给本地存一份）
             this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic);
             topicPublishInfo = this.topicPublishInfoTable.get(topic);
         }
+
         // 若获取的 Topic发布信息时候可用，则返回
         if (topicPublishInfo.isHaveTopicRouterInfo() || topicPublishInfo.ok()) {
             return topicPublishInfo;
-        } else { // 使用 {@link DefaultMQProducer#createTopicKey} 对应的 Topic发布信息。用于 Topic发布信息不存在 && Broker支持自动创建Topic
+        } else {
+            // 使用 {@link org.apache.rocketmq.client.producer.DefaultMQProducer.createTopicKey} 对应的 Topic发布信息
+            // 用于 Topic发布信息不存在 && Broker支持自动创建Topic 时
             this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic, true, this.defaultMQProducer);
             topicPublishInfo = this.topicPublishInfoTable.get(topic);
             return topicPublishInfo;

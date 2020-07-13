@@ -583,7 +583,8 @@ public class CommitLog {
     }
 
     /**
-     * 【入口】四、Message 存储 - 主体逻辑（刷盘之前）
+     * rukou4、Message 存储 - 主体逻辑（刷盘之前）
+     * http://www.iocoder.cn/RocketMQ/message-store/
      * CommitLog 是对 MappedFileQueue 的封装，MappedFileQueue 将 MappedFile 封装成文件队列
      * 三者是 1 ： 1 ： N 的关系
      * MappedFile 里只有两种内容：MESSAGE 和 BLANK 。BLANK 是文件不足以存储消息时的空白占位
@@ -635,7 +636,7 @@ public class CommitLog {
 
         long eclipseTimeInLock = 0;
 
-        // 获取写入映射文件
+        // <iii>获取写入映射文件
         MappedFile unlockMappedFile = null;
         MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile();
 
@@ -659,12 +660,13 @@ public class CommitLog {
                 return new PutMessageResult(PutMessageStatus.CREATE_MAPEDFILE_FAILED, null);
             }
 
-            // 存储消息
+            // <iii>存储消息
             result = mappedFile.appendMessage(msg, this.appendMessageCallback);
             switch (result.getStatus()) {
                 case PUT_OK:
                     break;
-                case END_OF_FILE: // 当文件尾时，获取新的映射文件，并进行插入
+                // 当文件尾时，获取新的映射文件，并进行插入
+                case END_OF_FILE:
                     unlockMappedFile = mappedFile;
                     // Create a new file, re-write the message
                     mappedFile = this.mappedFileQueue.getLastMappedFile(0);
@@ -738,7 +740,7 @@ public class CommitLog {
         }
 
         /*
-        【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.6 Master_SYNC - 同步双写实现
+        rukou9、高可用 - Broker高可用 - Broker主从 - 3.1.6 Master_SYNC - 同步双写实现
         Producer 发送消息时，Master_SYNC节点 会等待 Slave节点 存储完毕后再返回发送结果
          */
         // Synchronous write double 如果是同步Master，同步到从节点
@@ -954,7 +956,7 @@ public class CommitLog {
     }
 
     /**
-     * 【入口】四、Message 存储 - 刷盘逻辑
+     * rukou4、Message 存储 - 刷盘逻辑
      *
      * 共有三个子类：
      * 线程服务	                场景	                   插入消息性能

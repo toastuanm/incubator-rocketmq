@@ -56,7 +56,8 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
     }
 
     /**
-     * 【入口】三、Message 发送与接收 - Broker 接收消息
+     * rukou3、Message 发送与接收（下） - Broker 接收消息
+     * http://www.iocoder.cn/RocketMQ/message-send-and-receive/
      *
      * @param ctx
      * @param request
@@ -79,7 +80,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                 mqtraceContext = buildMsgContext(ctx, requestHeader);
                 // hook：处理发送消息前逻辑
                 this.executeSendMessageHookBefore(ctx, request, mqtraceContext);
-                // 处理发送消息逻辑
+                // <iii>处理发送消息逻辑，并返回发送结果
                 final RemotingCommand response = this.sendMessage(ctx, request, mqtraceContext, requestHeader);
                 // hook：处理发送消息后逻辑
                 this.executeSendMessageHookAfter(response, mqtraceContext);
@@ -94,7 +95,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
     }
 
     /**
-     * 【入口】五、Message 拉取与消费（上 - Broker） - 6、Broker 提供 [发回消息] 接口
+     * rukou5、Message 拉取与消费（上 - Broker） - 6、Broker 提供 [发回消息] 接口
      * 大部分逻辑和 Broker 提供[接收消息]接口 类似，可以先看下相关内容。     *
      *
      * 消费者发回消息
@@ -308,6 +309,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
         // 消息配置(Topic配置）校验
         response.setCode(-1);
+        // <iii>
         super.msgCheck(ctx, requestHeader, response);
         if (response.getCode() != -1) {
             return response;
@@ -315,7 +317,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
         final byte[] body = request.getBody();
 
-        // 如果队列小于0，从可用队列随机选择
+        // 如果队列小于0，随机选择一个消费队列
         int queueIdInt = requestHeader.getQueueId();
         TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
         if (queueIdInt < 0) {
@@ -387,11 +389,12 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             }
         }
 
-        // 添加消息
+        // <iii{@link org.apache.rocketmq.store.DefaultMessageStore.putMessage}>存储消息
         PutMessageResult putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
         if (putMessageResult != null) {
             boolean sendOK = false;
 
+            // 处理消息发送结果，设置响应结果和提示
             switch (putMessageResult.getPutMessageStatus()) {
                 // Success
                 case PUT_OK:
@@ -441,6 +444,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                     break;
             }
 
+            // 发送成功，响应
             String owner = request.getExtFields().get(BrokerStatsManager.COMMERCIAL_OWNER);
             if (sendOK) {
                 // 统计
@@ -453,6 +457,8 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                 responseHeader.setMsgId(putMessageResult.getAppendMessageResult().getMsgId());
                 responseHeader.setQueueId(queueIdInt);
                 responseHeader.setQueueOffset(putMessageResult.getAppendMessageResult().getLogicsOffset());
+                // 这里doResponse(ctx, request, response)进行响应，最后return null
+                // 原因是：响应给 Producer 可能发生异常，#doResponse(ctx, request, response)捕捉了该异常并输出日志。这样做的话，我们进行排查 Broker 接收消息成功后响应是否存在异常会方便很多
                 doResponse(ctx, request, response);
 
                 // hook：设置发送成功到context

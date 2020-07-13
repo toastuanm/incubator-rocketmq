@@ -29,7 +29,7 @@ public class MQFaultStrategy {
     private final static Logger log = ClientLogger.getLog();
 
     /**
-     * 延迟故障容错，维护每个Broker的发送消息的延迟
+     * <iii这个接口和类都看下>延迟故障容错，维护每个Broker的发送消息的延迟
      * key：brokerName
      */
     private final LatencyFaultTolerance<String> latencyFaultTolerance = new LatencyFaultToleranceImpl();
@@ -68,7 +68,7 @@ public class MQFaultStrategy {
                             return mq;
                     }
                 }
-                // 选择一个相对好的broker，并获得其对应的一个消息队列，不考虑该队列的可用性
+                // <iii不用太深入>选择一个相对好的broker，并获得其对应的一个消息队列，不考虑该队列的可用性
                 final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
                 int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
                 if (writeQueueNums > 0) {

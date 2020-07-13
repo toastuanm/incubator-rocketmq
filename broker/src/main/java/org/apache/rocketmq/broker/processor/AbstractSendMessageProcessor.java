@@ -163,7 +163,9 @@ public abstract class AbstractSendMessageProcessor implements NettyRequestProces
     }
 
     /**
-     * 校验消息是否正确，主要是消息配置方面，例如：broker是否可写，topic配置是否存在，队列编号是否正确。
+     * 校验消息是否正确，主要是消息配置方面
+     * 例如：broker是否可写，topic配置是否存在，队列编号是否正确。
+     *
      * 如果查找不到消息配置，则会进行创建
      * 该方法会对response的code、remark
      *
@@ -183,7 +185,7 @@ public abstract class AbstractSendMessageProcessor implements NettyRequestProces
                 + "] sending message is forbidden");
             return response;
         }
-        // 检查topic是否可以被发送。目前是{@link MixAll.DEFAULT_TOPIC}不被允许发送
+        // 检查topic是否可以被发送。如果是{@link MixAll.DEFAULT_TOPIC}不被允许发送
         if (!this.brokerController.getTopicConfigManager().isTopicCanSendMessage(requestHeader.getTopic())) {
             String errorMsg = "the topic[" + requestHeader.getTopic() + "] is conflict with system reserved words.";
             log.warn(errorMsg);
@@ -192,7 +194,9 @@ public abstract class AbstractSendMessageProcessor implements NettyRequestProces
             return response;
         }
         TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
-        if (null == topicConfig) { // 不能存在topicConfig，则进行创建
+        // 不存在topicConfig，则进行创建
+        // 创建会存在不成功的情况，例如说：defaultTopic 的Topic配置不存在，又或者是 存在但是不允许继承
+        if (null == topicConfig) {
             int topicSysFlag = 0;
             if (requestHeader.isUnitMode()) {
                 if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {

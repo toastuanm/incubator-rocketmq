@@ -22,7 +22,7 @@ import org.apache.rocketmq.common.ServiceThread;
 import org.slf4j.Logger;
 
 /**
- * 【入口】五、Message 拉取与消费（下 - Consumer） - 5、PushConsumer 消息队列分配
+ * rukou5、Message 拉取与消费（下 - Consumer） - 5、PushConsumer 消息队列分配
  *
  * 均衡消息队列服务，负责分配当前 Consumer 可消费的消息队列( MessageQueue )。
  * Rebalance Service

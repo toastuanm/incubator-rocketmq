@@ -277,6 +277,12 @@ public class DefaultMessageStore implements MessageStore {
         }
     }
 
+    /**
+     * 存储消息封装，最终存储需要 CommitLog 实现
+     *
+     * @param msg
+     * @return
+     */
     public PutMessageResult putMessage(MessageExtBrokerInner msg) {
         if (this.shutdown) {
             log.warn("message store has shutdown, so putMessage is forbidden");
@@ -322,7 +328,7 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         long beginTime = this.getSystemClock().now();
-        // 添加消息到commitLog
+        // <iii另一篇章：存储>添加消息到commitLog
         PutMessageResult result = this.commitLog.putMessage(msg);
 
         long eclipseTime = this.getSystemClock().now() - beginTime;
@@ -1675,7 +1681,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
-     * 【入口】五、Message 拉取与消费（上 - Broker） - 3、ConsumeQueue 存储
+     * rukou5、Message 拉取与消费（上 - Broker） - 3、ConsumeQueue 存储
      * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/
      *
      * ConsumeQueue主要有两个组件：

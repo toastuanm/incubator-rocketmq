@@ -930,7 +930,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     }
 
     /**
-     * 【入口】五、Message 拉取与消费（下 - Consumer） - 4、PushConsumer 订阅
+     * rukou5、Message 拉取与消费（下 - Consumer） - 4、PushConsumer 订阅
      * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-second/
      * 消息监听器在这里注册：{@link DefaultMQPushConsumer#registerMessageListener(org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently)}
      *

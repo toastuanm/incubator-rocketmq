@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> {
 
     /**
-     * 对象故障信息Table
+     * <iiiFaultItem>对象故障信息Table
      */
     private final ConcurrentHashMap<String, FaultItem> faultItemTable = new ConcurrentHashMap<>(16);
     /**

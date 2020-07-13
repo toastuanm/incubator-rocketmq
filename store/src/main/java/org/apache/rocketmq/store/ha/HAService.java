@@ -280,7 +280,7 @@ public class HAService {
         }
 
         /**
-         * 【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.6 Master_SYNC - 接收 Slave 同步进度
+         * rukou9、高可用 - Broker高可用 - Broker主从 - 3.1.6 Master_SYNC - 接收 Slave 同步进度
          */
         private void doWaitTransfer() {
             synchronized (this.requestsRead) {
@@ -626,7 +626,7 @@ public class HAService {
 
         @Override
         public void run() {
-            // 【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.4 Slave ： Slave 主循环，实现了不断不断不断拿 Master 传输 CommitLog 数据，给 Master 上传自己本地的 CommitLog 已经同步物理位置。
+            // rukou9、高可用 - Broker高可用 - Broker主从 - 3.1.4 Slave ： Slave 主循环，实现了不断不断不断拿 Master 传输 CommitLog 数据，给 Master 上传自己本地的 CommitLog 已经同步物理位置。
 
             // 【约定一下】：Master 向 Slave 发起的东西，叫下发；Slave 向 Master 发起的东西，叫上报
 

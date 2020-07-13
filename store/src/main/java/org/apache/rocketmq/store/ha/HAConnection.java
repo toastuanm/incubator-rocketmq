@@ -161,7 +161,7 @@ public class HAConnection {
         }
 
         private boolean processReadEvent() {
-            //【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.5 Master - 处理上报的事件
+            //rukou9、高可用 - Broker高可用 - Broker主从 - 3.1.5 Master - 处理上报的事件
             // ReadSocketService 逻辑同 HAClient#processReadEvent(...) 基本相同，我们直接看代码
 
             int readSizeZeroTimes = 0;
@@ -218,7 +218,7 @@ public class HAConnection {
     }
 
     /**
-     * 【入口】九、高可用 - Broker高可用 - Broker主从 - 3.1.5 Master - 进行下发
+     * rukou9、高可用 - Broker高可用 - Broker主从 - 3.1.5 Master - 进行下发
      * WriteSocketService 计算 Slave开始同步的位置后，不断向 Slave 传输新的 CommitLog数据
      * <p>
      * 写入线程服务

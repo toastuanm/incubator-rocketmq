@@ -80,7 +80,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
     }
 
     /**
-     * 【入口】五、Message 拉取与消费（上 - Broker） - 4、Broker 提供 [拉取消息] 接口
+     * rukou5、Message 拉取与消费（上 - Broker） - 4、Broker 提供 [拉取消息] 接口
      *
      * 处理拉取消息请求，返回响应
      *
