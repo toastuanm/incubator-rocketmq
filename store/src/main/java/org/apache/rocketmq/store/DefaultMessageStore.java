@@ -1682,15 +1682,15 @@ public class DefaultMessageStore implements MessageStore {
 
     /**
      * rukou5、Message 拉取与消费（上 - Broker） - 3、ConsumeQueue 存储
-     * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/
+     * http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/<p/>
      *
-     * ConsumeQueue主要有两个组件：
-     * {@link ReputMessageService} ：write ConsumeQueue。
-     * {@link FlushConsumeQueueService} ：flush ConsumeQueue
+     * ConsumeQueue主要有两个组件：<p/>
+     * {@link ReputMessageService} ：write ConsumeQueue。<p/>
+     * {@link FlushConsumeQueueService} ：flush ConsumeQueue<p/>
      *
-     * 重放消息线程服务
-     * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
-     * 该服务不断生成 消息索引 到 索引文件(IndexFile)
+     * 重放消息线程服务<p/>
+     * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)<p/>
+     * 该服务不断生成 消息索引 到 索引文件(IndexFile)<p/>
      */
     @SuppressWarnings("SpellCheckingInspection")
     class ReputMessageService extends ServiceThread {

@@ -637,6 +637,7 @@ public class HAService {
                     if (this.connectMaster()) {
                         // 若到满足上报间隔，上报到Master进度
                         if (this.isTimeToReportOffset()) {
+                            // <iii>
                             boolean result = this.reportSlaveMaxOffset(this.currentReportedOffset);
                             if (!result) {
                                 this.closeMaster();
@@ -645,7 +646,7 @@ public class HAService {
 
                         this.selector.select(1000);
 
-                        // 处理读取事件
+                        // 处理读取事件 <iii>
                         boolean ok = this.processReadEvent();
                         if (!ok) {
                             this.closeMaster();

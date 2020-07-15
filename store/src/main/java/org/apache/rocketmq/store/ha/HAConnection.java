@@ -293,6 +293,7 @@ public class HAConnection {
                             this.byteBufferHeader.putInt(0);
                             this.byteBufferHeader.flip();
 
+                            // <iii>
                             this.lastWriteOver = this.transferData();
                             if (!this.lastWriteOver)
                                 continue;

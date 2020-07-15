@@ -956,24 +956,24 @@ public class CommitLog {
     }
 
     /**
-     * rukou4、Message 存储 - 刷盘逻辑
+     * rukou4、Message 存储 - 刷盘逻辑<p/>
      *
-     * 共有三个子类：
-     * 线程服务	                场景	                   插入消息性能
-     * CommitRealTimeService	异步刷盘 && 开启内存字节缓冲区	第一
-     * FlushRealTimeService	    异步刷盘 && 关闭内存字节缓冲区	第二
-     * GroupCommitService	    同步刷盘	                    第三
+     * 共有三个子类：<p/>
+     * 线程服务	                场景	                   插入消息性能<p/>
+     * CommitRealTimeService	异步刷盘 && 开启内存字节缓冲区	第一<p/>
+     * FlushRealTimeService	    异步刷盘 && 关闭内存字节缓冲区	第二<p/>
+     * GroupCommitService	    同步刷盘	                    第三<p/>
      *
-     * MappedFile#落盘
-     * 方式
-     * 方式一：写入内存字节缓冲区(writeBuffer)，从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel)，文件通道(fileChannel)flush
-     * 方式二：写入映射文件字节缓冲区(mappedByteBuffer)，映射文件字节缓冲区(mappedByteBuffer)flush
+     * MappedFile#落盘<p/>
+     * 方式<p/>
+     * 方式一：写入内存字节缓冲区(writeBuffer)，从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel)，文件通道(fileChannel)flush<p/>
+     * 方式二：写入映射文件字节缓冲区(mappedByteBuffer)，映射文件字节缓冲区(mappedByteBuffer)flush<p/>
      *
-     * 观看顺序：
-     * 1、flush逻辑：{@link org.apache.rocketmq.store.MappedFile#flush(int)}
-     * 2、commit逻辑：{@link MappedFile#commit(int)}
-     * 3、{@link FlushRealTimeService}
-     * 4、{@link CommitRealTimeService}
+     * 观看顺序：<p/>
+     * 1、flush逻辑：{@link org.apache.rocketmq.store.MappedFile#flush(int)}<p/>
+     * 2、commit逻辑：{@link MappedFile#commit(int)}<p/>
+     * 3、{@link FlushRealTimeService}<p/>
+     * 4、{@link CommitRealTimeService}<p/>
      * 5、{@link GroupCommitService}
      */
     abstract class FlushCommitLogService extends ServiceThread {

@@ -93,6 +93,8 @@ public class BrokerOuterAPI {
     /**
      * Namesrv 高可用总括：启动多个 Namesrv 实现高可用，Namesrv 互不通信
      * rukou9、高可用 - Namesrv 高可用 - 2.1 Broker 注册到 Namesrv
+     * http://www.iocoder.cn/RocketMQ/high-availability/
+     *
      * 多个 Namesrv 之间，没有任何关系（不存在类似 Zookeeper 的 Leader/Follower 等角色），不进行通信与数据同步。通过 Broker 循环注册多个 Namesrv
      *
      * @param clusterName 集群名
