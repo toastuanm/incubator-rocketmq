@@ -31,6 +31,9 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * rukou15、RPC一 - 2.1 消息协议。这个类就是承载消息协议的
+ */
 public class RemotingCommand {
     public static final String SERIALIZE_TYPE_PROPERTY = "rocketmq.serialize.type";
     public static final String SERIALIZE_TYPE_ENV = "ROCKETMQ_SERIALIZE_TYPE";
