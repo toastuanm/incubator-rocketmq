@@ -204,8 +204,10 @@ public class PullAPIWrapper {
     ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
         // 获取Broker信息
         FindBrokerResult findBrokerResult =
-            this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
-                this.recalculatePullFromWhichNode(mq), false);
+                //<iii> 获取 Broker 信息(Broker 地址、是否为从节点)。
+                this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
+                        // <iii> 获取 Broker 信息(Broker 地址、是否为从节点)。
+                        this.recalculatePullFromWhichNode(mq), false);
         if (null == findBrokerResult) {
             this.mQClientFactory.updateTopicRouteInfoFromNameServer(mq.getTopic());
             findBrokerResult =
