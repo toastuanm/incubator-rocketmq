@@ -989,12 +989,14 @@ public class MQClientInstance {
     /**
      * 消费者进行平衡
      * 遍历当前 Client 包含的 consumerTable( Consumer集合 )，执行消息队列分配。
+     * 疑问：目前代码调试下来，consumerTable 只包含 Consumer 自己
      */
     public void doRebalance() {
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
             MQConsumerInner impl = entry.getValue();
             if (impl != null) {
                 try {
+                    // <iii> 调用 MQConsumerInner#doRebalance(...) 进行队列分配。DefaultMQPushConsumerImpl、DefaultMQPullConsumerImpl 分别对该接口方法进行了实现
                     impl.doRebalance();
                 } catch (Throwable e) {
                     log.error("doRebalance exception", e);

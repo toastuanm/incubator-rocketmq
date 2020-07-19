@@ -510,6 +510,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     }
 
     public void executePullRequestImmediately(final PullRequest pullRequest) {
+        // 提交拉取请求。提交后，PullMessageService 异步执行，非阻塞。详细解析见：PullMessageService。
         this.mQClientFactory.getPullMessageService().executePullRequestImmediately(pullRequest);
     }
 
@@ -943,8 +944,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     public void subscribe(String topic, String subExpression) throws MQClientException {
         try {
             // 创建订阅数据。详细解析见：FilterAPI.buildSubscriptionData(…)。 <iii>
-            SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(), //
-                topic, subExpression);
+            SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(), topic, subExpression);
             this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);
             // 通过心跳同步Consumer信息到Broker
             if (this.mQClientFactory != null) {
@@ -1054,11 +1054,12 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     }
 
     /**
-     * 进行平衡
+     * 执行消息队列分配
      */
     @Override
     public void doRebalance() {
         if (!this.pause) {
+            // <iii> 调用 RebalanceImpl#doRebalance(...) 进行队列分配
             this.rebalanceImpl.doRebalance(this.isConsumeOrderly());
         }
     }

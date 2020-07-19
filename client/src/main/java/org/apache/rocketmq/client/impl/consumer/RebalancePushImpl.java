@@ -54,7 +54,7 @@ public class RebalancePushImpl extends RebalanceImpl {
     }
 
     /**
-     * 移除不需要的队列相关的信息
+     * 移除不需要的队列相关的信息，并返回是否移除成功
      * 1. 持久化消费进度，并移除之
      * 2. 顺序消费&集群模式，解锁对该队列的锁定
      *
@@ -64,10 +64,11 @@ public class RebalancePushImpl extends RebalanceImpl {
      */
     @Override
     public boolean removeUnnecessaryMessageQueue(MessageQueue mq, ProcessQueue pq) {
-        // 同步队列的消费进度，并移除之。
+        // *同步*队列的消费进度，并移除之。
         this.defaultMQPushConsumerImpl.getOffsetStore().persist(mq);
         this.defaultMQPushConsumerImpl.getOffsetStore().removeOffset(mq);
         // 集群模式下，顺序消费移除时，解锁对队列的锁定
+        // 顺序消费 相关跳过，详细解析见：《RocketMQ 源码分析 —— Message 顺序发送与消费》
         if (this.defaultMQPushConsumerImpl.isConsumeOrderly()
             && MessageModel.CLUSTERING.equals(this.defaultMQPushConsumerImpl.messageModel())) {
             try {
@@ -216,6 +217,7 @@ public class RebalancePushImpl extends RebalanceImpl {
     @Override
     public void dispatchPullRequest(List<PullRequest> pullRequestList) {
         for (PullRequest pullRequest : pullRequestList) {
+            // <iii>
             this.defaultMQPushConsumerImpl.executePullRequestImmediately(pullRequest);
             log.info("doRebalance, {}, add a new pull request {}", consumerGroup, pullRequest);
         }
