@@ -514,7 +514,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             @Override
             public void run() {
                 try {
-                    // 调用拉取请求。本次调用，设置不挂起请求。
+                    // 调用拉取请求。本次调用，设置不允许挂起请求。
                     final RemotingCommand response = PullMessageProcessor.this.processRequest(channel, request, false);
 
                     if (response != null) {

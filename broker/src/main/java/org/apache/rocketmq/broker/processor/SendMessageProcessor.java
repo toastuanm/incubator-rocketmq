@@ -98,7 +98,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
      * rukou5、Message 拉取与消费（上 - Broker） - 6、Broker 提供 [发回消息] 接口
      * 大部分逻辑和 Broker 提供[接收消息]接口 类似，可以先看下相关内容。     *
      *
-     * 消费者发回消息
+     * 消费者发回消费失败的消息
      *
      * @param ctx ctx
      * @param request 请求
@@ -127,8 +127,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         }
 
         // 判断消费分组是否存在（独有）
-        SubscriptionGroupConfig subscriptionGroupConfig =
-            this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getGroup());
+        SubscriptionGroupConfig subscriptionGroupConfig = this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getGroup());
         if (null == subscriptionGroupConfig) {
             response.setCode(ResponseCode.SUBSCRIPTION_GROUP_NOT_EXIST);
             response.setRemark("subscription group not exist, " + requestHeader.getGroup() + " "

@@ -1629,7 +1629,7 @@ public class DefaultMessageStore implements MessageStore {
                 flushConsumeQueueLeastPages = 0;
                 logicsMsgTimestamp = DefaultMessageStore.this.getStoreCheckpoint().getLogicsMsgTimestamp();
             }
-            // flush消费队列
+            // flush消费队列ConsumeQueue
             ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConsumeQueue>> tables = DefaultMessageStore.this.consumeQueueTable;
             for (ConcurrentHashMap<Integer, ConsumeQueue> maps : tables.values()) {
                 for (ConsumeQueue cq : maps.values()) {
@@ -1639,7 +1639,7 @@ public class DefaultMessageStore implements MessageStore {
                     }
                 }
             }
-            // flush 存储 check point
+            // flush 存储 check point。StoreCheckpoint 的详细解析见：Store初始化与关闭。
             if (0 == flushConsumeQueueLeastPages) {
                 if (logicsMsgTimestamp > 0) {
                     DefaultMessageStore.this.getStoreCheckpoint().setLogicsMsgTimestamp(logicsMsgTimestamp);
