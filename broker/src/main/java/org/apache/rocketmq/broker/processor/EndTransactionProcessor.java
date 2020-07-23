@@ -46,6 +46,7 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
     }
 
     /**
+     * rukou12、事务消息 - 12.2.2 Broker 处理结束事务请求
      * 结束事务，提交/回滚消息
      *
      * @param ctx ctx
@@ -58,7 +59,7 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
         final EndTransactionRequestHeader requestHeader = (EndTransactionRequestHeader) request.decodeCommandCustomHeader(EndTransactionRequestHeader.class);
 
-        // 打印日志（只处理 COMMIT / ROLLBACK）
+        // 这部分代码可以不看 =》 打印日志（只处理 COMMIT / ROLLBACK）
         if (requestHeader.getFromTransactionCheck()) {
             switch (requestHeader.getCommitOrRollback()) {
                 case MessageSysFlag.TRANSACTION_NOT_TYPE: {

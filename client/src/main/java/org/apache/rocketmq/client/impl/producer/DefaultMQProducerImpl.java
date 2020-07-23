@@ -1066,6 +1066,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
     }
 
     /**
+     * rukou12、事务消息 - 12.2.1 Producer 发送
      * 发送事务消息
      *
      * @param msg 消息
@@ -1131,6 +1132,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
 
         // 结束事务：提交消息 COMMIT / ROLLBACK
         try {
+            // <iii>
             this.endTransaction(sendResult, localTransactionState, localException);
         } catch (Exception e) {
             log.warn("local transaction execute " + localTransactionState + ", but end broker transaction failed", e);
