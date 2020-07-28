@@ -313,6 +313,7 @@ public class MappedFile extends ReferenceResource {
      * @return The current flushed position
      */
     public int flush(final int flushLeastPages) {
+        // <iii>
         if (this.isAbleToFlush(flushLeastPages)) {
             if (this.hold()) {
                 int value = getReadPosition();
@@ -350,8 +351,10 @@ public class MappedFile extends ReferenceResource {
             //no need to commit data to file channel, so just regard wrotePosition as committedPosition.
             return this.wrotePosition.get();
         }
+        // <iii>
         if (this.isAbleToCommit(commitLeastPages)) {
             if (this.hold()) {
+                // <iii>
                 commit0(commitLeastPages);
                 this.release();
             } else {
